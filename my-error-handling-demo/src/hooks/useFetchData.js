@@ -1,3 +1,7 @@
+// File: useFetchData.js
+// Author: montey
+// Description: Custom React hook for fetching data from a given URL. Handles loading, error, and provides a refetch function for retrying failed requests.
+
 import { useState, useEffect, useCallback } from 'react';
 
 /**
