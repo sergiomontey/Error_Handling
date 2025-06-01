@@ -1,19 +1,26 @@
-// File: UserProfile.jsx
-// Author: montey
-// Description: Displays user profile information fetched from an external API. Handles loading, error, and retry logic using a custom data-fetching hook.
+/*
+ * File: UserProfile.jsx
+ * Author: Sergio Montecinos
+ * Description: Displays user profile data, handling async loading, errors, and retry using the useFetchData hook.
+ */
 
 import React from 'react';
 import { useFetchData } from '../hooks/useFetchData';
 
+/**
+ * Fetches and displays user profile data from the API.
+ * Shows a loading spinner, error message with retry, or user details.
+ */
 export function UserProfile({ userId }) {
-  // Fetch user data for the given userId using a custom hook
+  // Fetch user data using the custom hook
   const { data, loading, error, refetch } = useFetchData(
     `https://jsonplaceholder.typicode.com/users/${userId}`
   );
 
-  // Show loading indicator while fetching
+  // Display loading indicator with ARIA support
   if (loading) return <div aria-busy="true">Loading user...</div>;
-  // Show error message and retry button if fetch fails
+
+  // If error, show message and retry option (role=alert for accessibility)
   if (error) {
     return (
       <div role="alert" style={{ color: "red" }}>
@@ -22,9 +29,11 @@ export function UserProfile({ userId }) {
       </div>
     );
   }
-  // If no data, render nothing
+
+  // No data fetched yet, don't render
   if (!data) return null;
-  // Render user profile details
+
+  // Display fetched user details
   return (
     <div className="user-profile" aria-live="polite">
       <h3>{data.name}</h3>

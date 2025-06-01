@@ -1,41 +1,43 @@
-// File: UserRegistrationForm.jsx
-// Author: montey
-// Description: User registration form component for the error handling demo. Handles form state, validation, simulated server responses, and displays error/success messages.
+/*
+ * File: UserRegistrationForm.jsx
+ * Author: Sergio Montecinos
+ * Description: Registration form demonstrating client-side validation, simulated server-side errors, and accessible error feedback.
+ */
 
 import React, { useState } from 'react';
 
-// Simulate server responses for demo registration
+// Simulate API responses (for demo: fake error scenarios)
 async function fakeRegister({ username, email, password }) {
-  // Simulate network delay
-  await new Promise(res => setTimeout(res, 700));
-  // Validate required fields
+  await new Promise(res => setTimeout(res, 700)); // Simulate network delay
   if (!username || !email || !password) {
     return { status: 400, message: "All fields required." };
   }
-  // Simulate specific username errors
   if (username === "testfail") {
     return { status: 400, message: "Username not allowed." };
   }
   if (username === "serverfail") {
     return { status: 500, message: "Server error. Try again." };
   }
-  // Simulate successful registration
+  // Success!
   return { status: 200, user: { username, email } };
 }
 
+/**
+ * Registration form with validation, server error handling, and accessibility features.
+ */
 export function UserRegistrationForm() {
-  // Form field values
+  // Form state
   const [values, setValues] = useState({ username: "", email: "", password: "" });
-  // Field-level validation errors
+  // Per-field error messages
   const [errors, setErrors] = useState({});
-  // Server error message
+  // Server-side/global error
   const [serverError, setServerError] = useState(null);
-  // Success state
+  // Success indicator
   const [success, setSuccess] = useState(false);
-  // Submission state
+  // Submitting state for loading indicator/disable
   const [submitting, setSubmitting] = useState(false);
 
-  // Validate form fields and return errors object
+  // Validate all inputs (returns error object)
   const validate = () => {
     const errs = {};
     if (!values.username) errs.username = "Username required";
@@ -44,21 +46,25 @@ export function UserRegistrationForm() {
     return errs;
   };
 
-  // Handle input changes, clear field errors and server error
+  // Handle field value changes
   const handleChange = e => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: null });
-    setServerError(null);
+    setErrors({ ...errors, [e.target.name]: null }); // Clear individual error
+    setServerError(null); // Clear any server/global error
   };
 
-  // Handle form submission: validate, call fakeRegister, update UI based on response
+  // Handle form submit (client and server-side error handling)
   const handleSubmit = async e => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
     setSubmitting(true);
     setServerError(null);
     setSuccess(false);
+    // Simulate API call and handle possible server-side errors
     const resp = await fakeRegister(values);
     setSubmitting(false);
     if (resp.status !== 200) {
@@ -72,16 +78,15 @@ export function UserRegistrationForm() {
   return (
     <form onSubmit={handleSubmit} aria-label="registration form" noValidate>
       <h4>Register</h4>
-      {/* Username field and error */}
       <div>
         <label>
           Username:
           <input name="username" value={values.username} onChange={handleChange}
             aria-invalid={!!errors.username} aria-describedby="username-error" />
         </label>
+        {/* Inline field error message with ARIA support */}
         {errors.username && <div id="username-error" role="alert" style={{ color: "red" }}>{errors.username}</div>}
       </div>
-      {/* Email field and error */}
       <div>
         <label>
           Email:
@@ -90,7 +95,6 @@ export function UserRegistrationForm() {
         </label>
         {errors.email && <div id="email-error" role="alert" style={{ color: "red" }}>{errors.email}</div>}
       </div>
-      {/* Password field and error */}
       <div>
         <label>
           Password:
@@ -99,11 +103,11 @@ export function UserRegistrationForm() {
         </label>
         {errors.password && <div id="password-error" role="alert" style={{ color: "red" }}>{errors.password}</div>}
       </div>
-      {/* Server error message */}
+      {/* Server/global error */}
       {serverError && <div role="alert" style={{ color: "red" }}>{serverError}</div>}
       {/* Success message */}
       {success && <div style={{ color: "green" }}>Registration successful!</div>}
-      {/* Submit button, disabled while submitting */}
+      {/* Button disables when submitting */}
       <button type="submit" disabled={submitting}>{submitting ? "Registering..." : "Register"}</button>
     </form>
   );
